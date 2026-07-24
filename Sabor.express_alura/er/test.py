@@ -13,11 +13,14 @@ class Carro:
          dados = []
          for carro in cls.estoque:
              dados.append({
-                 
+
+                 'placa' : carro._placa,
                 'modelo': carro._modelo,
                 'cor': carro._cor,
                 'ano': carro._ano,
-                'status': carro._status
+                'status': carro._status,
+                'data de cadastro' : carro._data._cadastro
+
              })
 
          with open('carros.json', 'w', encoding='utf-8') as arquivo:
@@ -25,11 +28,13 @@ class Carro:
 
      estoque = []
 
-     def __init__(self, modelo, cor, ano):
+     def __init__(self, placa, modelo, cor, ano, data_cadastro=None):
+         self._placa = placa
          self._modelo = modelo
          self._cor = cor
          self._ano = ano
          self._status = False
+         self._data_cadastro = data_cadastro or datetime.now().strftime('%d/%m/%Y %H:%m')
          Carro.estoque.append(self)
 
 
@@ -50,12 +55,24 @@ class Carro:
 
      @classmethod
      def adicionar_modelos(cls):
-         modelo = input(str('Qual o modelo?: '))
-         cor = input(str('Qual o Cor?: '))
-         ano = input(str('Qual o Ano?: '))
-                  
-         Carro(modelo, cor, ano)
-         cls.salvar_em_json()
+
+        while True:
+
+            placa = input(str('Qual a placa do carro? (7 caracteres): ')).strip().upper()
+
+            if len(placa) == 7:
+                break
+            else:
+                print("❌ Placa inválida! A placa deve ter exatamente 7 caracteres (Ex: ABC1D23 ou ABC1234).\n")
+
+
+
+
+        modelo = input(str('Qual o modelo?: '))
+        cor = input(str('Qual o Cor?: '))
+        ano = input(str('Qual o Ano?: '))
+        Carro(placa, modelo, cor, ano)
+        cls.salvar_em_json()
 
      @classmethod
      def ativar_modelo(cls):
@@ -72,6 +89,21 @@ class Carro:
              if  not encontrado:
                  print(f"\n O veículo {modelo_busca} não foi encontrado no estoque!")
 
+     @classmethod
+     def excluir(cls):
+         placa_busca = input('Digite a placa do veículo que você deseja EXCLUIR: ').strip().upper()
+         encontrado = False
+
+         for carro in cls.estoque:
+             if carro._placa == placa_busca:
+                 cls.estoque.remove(carro)
+                 cls.salvar_json()
+                 print(f"O veiculo com a placa: {placa_busca} foi excluido com sucesso!")
+                 encontrado = True
+                 input('\n Presione ENTER para continuar...')
+                 break
+             if not encontrado:
+                 input(f"\n O veículo {placa_busca}, não foi encontrado em nosso banco de dados! Pressione enter")
 
 
 
