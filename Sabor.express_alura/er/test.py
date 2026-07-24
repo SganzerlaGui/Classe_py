@@ -19,12 +19,31 @@ class Carro:
                 'cor': carro._cor,
                 'ano': carro._ano,
                 'status': carro._status,
-                'data de cadastro' : carro._data._cadastro
+                'data de cadastro' : carro._data_cadastro
 
              })
 
          with open('carros.json', 'w', encoding='utf-8') as arquivo:
              json.dump(dados, arquivo, indent=4, ensure_ascii=False)
+
+
+
+     @classmethod
+     def carregar_json(cls):
+         if os.path.exists('carros.json'):
+             with open('carros.json', 'r', encoding='utf-8') as arquivo:
+                 dados = json.load(arquivo)
+                 cls.estoque = []
+                 for item in dados:
+                     Carro(
+                         placa=item.get('placa', 'N/A'),
+                         modelo=item['modelo'],
+                         cor=item['cor'],
+                         ano=item['ano'],
+                         status=item.get('status', False),
+                         data_cadastro=item.get('data de cadastro')
+                     )
+
 
      estoque = []
 
@@ -49,7 +68,7 @@ class Carro:
 
             #Como usar esse if/else: [O que eu quero] if [se isso for verdade] else [o que eu quero caso seja falso].
             status = 'Ativado' if carro._status else 'Desativado'
-            print(f"{carro._modelo.ljust(20)} | {carro._cor.ljust(20)} | {str(carro._ano).ljust(20)} | {str(status).ljust(20)}")
+            print(f"{carro._placa.ljust(20)} | {carro._modelo.ljust(20)} | {carro._cor.ljust(20)} | {str(carro._ano).ljust(20)} | {str(status).ljust(20)}")
 
 
 
@@ -72,7 +91,7 @@ class Carro:
         cor = input(str('Qual o Cor?: '))
         ano = input(str('Qual o Ano?: '))
         Carro(placa, modelo, cor, ano)
-        cls.salvar_em_json()
+        cls.salvar_json()
 
      @classmethod
      def ativar_modelo(cls):
@@ -95,15 +114,14 @@ class Carro:
          encontrado = False
 
          for carro in cls.estoque:
-             if carro._placa == placa_busca:
-                 cls.estoque.remove(carro)
-                 cls.salvar_json()
-                 print(f"O veiculo com a placa: {placa_busca} foi excluido com sucesso!")
-                 encontrado = True
-                 input('\n Presione ENTER para continuar...')
-                 break
-             if not encontrado:
-                 input(f"\n O veículo {placa_busca}, não foi encontrado em nosso banco de dados! Pressione enter")
+                 if carro._placa.strip().upper() == placa_busca:
+                     cls.estoque.remove(carro) 
+                     cls.salvar_json()         
+                     print(f"\n O veículo com a placa {placa_busca} foi excluído com sucesso!")
+                     encontrado = True
+                     break
+                 if not encontrado:
+                     input(f"\n O veículo {placa_busca}, não foi encontrado em nosso banco de dados! Pressione enter")
 
 
 
@@ -112,31 +130,44 @@ class Carro:
 def menu_principal():
     while True:
 
-        Carro.limpar_tela()
+        
 
 
         print("\n=== ESTOQUE DOS VEÍCULOS ===    ")
         print(" 1 - Cadastrar veículo")
         print(" 2 - Listar estoque")
         print(" 3 - Ativar veículo")
-        print(" 4 - Sair")
+        print(" 4 - !!EXCLUIR!!")
+        print(" 5 - Sair")
 
-        opcao = input("\nEsccolha o opção desejada: ")
+        opcao = input("\nEscolha o opção desejada: ")
 
         if opcao == '1':
+            Carro.limpar_tela()
             Carro.adicionar_modelos()
 
         elif opcao == '2':
-            Carro.Listar_modelos()            
+            Carro.limpar_tela()
+            Carro.Listar_modelos()
+            input("\nPressione ENTER para voltar ao menu...")            
 
         elif opcao == '3':
+            Carro.limpar_tela()
             Carro.ativar_modelo()
 
         elif opcao == '4':
+            Carro.limpar_tela()
+            Carro.excluir()
+
+
+        elif opcao == '5':
+            Carro.limpar_tela()
             print("Saindo do programa, até logo!!")
             break
 
+
         else:
+            Carro.limpar_tela()
             print("Opção invalida! Digite a opção novamente. ")                          
 
 menu_principal()
